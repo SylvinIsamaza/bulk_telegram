@@ -1,16 +1,35 @@
-# This is a sample Python script.
+from telethon.sync import TelegramClient, events
+import asyncio
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# Replace these with your own values
+api_id = 'YOUR_API_ID'
+api_hash = 'YOUR_API_HASH'
 
+async def create_telegram_account():
+    async with TelegramClient('anon', api_id, api_hash) as client:
+        print("Creating a new Telegram account...")
+        try:
+            await client.sign_up(
+                phone_number='YOUR_PHONE_NUMBER',  # Replace with your phone number
+                first_name='YourFirstName',
+                last_name='YourLastName'
+            )
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+            print("Account created successfully!")
 
+            @client.on(events.NewMessage(chats='me'))
+            async def on_message(event):
+                if "Your verification code" in event.message.message:
+                    verification_code = event.message.message.split(':')[1].strip()
+                    print(f"Received verification code: {verification_code}")
+                    await client.disconnect()
 
-# Press the green button in the gutter to run the script.
+            print("Waiting for the verification code...")
+            await client.send_message('me', 'Your verification code: 123456')  # Replace with the code you received
+
+        except Exception as e:
+            print("Error creating account:", e)
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    asyncio.run(create_telegram_account())
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
